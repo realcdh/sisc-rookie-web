@@ -3,6 +3,8 @@ package com.sisc_it.sisc_rookie_web.application.domain;
 import java.time.LocalDateTime;
 
 import com.sisc_it.sisc_rookie_web.event.domain.Event;
+import com.sisc_it.sisc_rookie_web.global.exception.BusinessException;
+import com.sisc_it.sisc_rookie_web.global.exception.ErrorCode;
 import com.sisc_it.sisc_rookie_web.member.domain.Member;
 import com.sisc_it.sisc_rookie_web.team.domain.Team;
 import jakarta.persistence.Column;
@@ -44,13 +46,13 @@ public class Application {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    // 팀이 없는 신입 부원도 행사에 신청할 수 있으므로 nullable이다.
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id", nullable = false)
+    @JoinColumn(name = "team_id")
     private Team team;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    @Setter
     private ApplicationStatus status;
 
     // Managed by the system, so no public setter.
@@ -74,6 +76,25 @@ public class Application {
         this.team = team;
         this.status = status;
         this.attended = false;
+    }
+
+    /**
+     * 운영진의 승인/반려 처리. 대기(PENDING) 상태에서만 가능하며,
+     * 결과는 APPROVED 또는 REJECTED여야 한다.
+     */
+    public void review(ApplicationStatus decision) {
+        if (!this.status.isReviewable() || !decision.isReviewDecision()) {
+            throw new BusinessException(ErrorCode.INVALID_APPLICATION_STATUS_CHANGE);
+        }
+        this.status = decision;
+    }
+
+    /** 신청자 본인의 취소. 대기(PENDING) 상태에서만 가능하다. */
+    public void cancel() {
+        if (!this.status.isCancelable()) {
+            throw new BusinessException(ErrorCode.CANNOT_CANCEL_APPLICATION);
+        }
+        this.status = ApplicationStatus.CANCELED;
     }
 
     @PrePersist
