@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sisc_it.sisc_rookie_web.application.domain.Application;
 import com.sisc_it.sisc_rookie_web.application.domain.ApplicationStatus;
 import com.sisc_it.sisc_rookie_web.application.repository.ApplicationRepository;
+import com.sisc_it.sisc_rookie_web.attendance.domain.Attendance;
+import com.sisc_it.sisc_rookie_web.attendance.repository.AttendanceRepository;
 import com.sisc_it.sisc_rookie_web.dashboard.dto.DashboardResponse;
 import com.sisc_it.sisc_rookie_web.dashboard.service.DashboardService;
 import com.sisc_it.sisc_rookie_web.event.domain.Event;
@@ -36,6 +38,8 @@ class DashboardServiceTest {
     @Autowired
     private FeedbackRepository feedbackRepository;
     @Autowired
+    private AttendanceRepository attendanceRepository;
+    @Autowired
     private MemberRepository memberRepository;
     @Autowired
     private TeamRepository teamRepository;
@@ -51,12 +55,13 @@ class DashboardServiceTest {
         Event open2 = eventRepository.save(new Event("OPEN2", "설명", EventStatus.OPEN, admin));
         eventRepository.save(new Event("DRAFT", "설명", EventStatus.DRAFT, admin));
 
-        // 신청 3건: open1-m1(APPROVED, 출석), open1-m2(APPROVED), open2-m1(PENDING)
-        Application approvedAttended = new Application(open1, m1, team, ApplicationStatus.APPROVED);
-        approvedAttended.setAttended(true);
-        applicationRepository.save(approvedAttended);
+        // 신청 3건: open1-m1(APPROVED), open1-m2(APPROVED), open2-m1(PENDING)
+        applicationRepository.save(new Application(open1, m1, team, ApplicationStatus.APPROVED));
         applicationRepository.save(new Application(open1, m2, team, ApplicationStatus.APPROVED));
         applicationRepository.save(new Application(open2, m1, team, ApplicationStatus.PENDING));
+
+        // 출석 1건(통합 환경에서는 Attendance 테이블로 출석 수를 집계)
+        attendanceRepository.save(new Attendance(open1, m1));
 
         feedbackRepository.save(new Feedback(open1, m1, "좋았습니다."));
 

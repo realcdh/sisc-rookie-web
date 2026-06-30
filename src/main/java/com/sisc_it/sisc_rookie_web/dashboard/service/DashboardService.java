@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sisc_it.sisc_rookie_web.application.domain.ApplicationStatus;
 import com.sisc_it.sisc_rookie_web.application.repository.ApplicationRepository;
+import com.sisc_it.sisc_rookie_web.attendance.repository.AttendanceRepository;
 import com.sisc_it.sisc_rookie_web.dashboard.dto.DashboardResponse;
 import com.sisc_it.sisc_rookie_web.event.domain.EventStatus;
 import com.sisc_it.sisc_rookie_web.event.repository.EventRepository;
@@ -19,6 +20,7 @@ public class DashboardService {
 
     private final EventRepository eventRepository;
     private final ApplicationRepository applicationRepository;
+    private final AttendanceRepository attendanceRepository;
     private final FeedbackRepository feedbackRepository;
 
     /** 운영 현황 수치를 집계한다. */
@@ -28,7 +30,8 @@ public class DashboardService {
             eventRepository.countByStatus(EventStatus.OPEN),
             applicationRepository.count(),
             applicationRepository.countByStatus(ApplicationStatus.APPROVED),
-            applicationRepository.countByAttendedTrue(),
+            // 출석 수는 실제 출석 기록(Attendance) 테이블 기준으로 집계한다.
+            attendanceRepository.count(),
             feedbackRepository.count()
         );
     }
