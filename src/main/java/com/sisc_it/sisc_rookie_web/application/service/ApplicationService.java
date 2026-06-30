@@ -68,7 +68,7 @@ public class ApplicationService {
     /** [운영진] 해당 행사의 신청자 전체 목록 조회. */
     public List<ApplicationResponse> getApplications(Long eventId) {
         findEvent(eventId); // 존재하지 않는 행사면 404
-        return applicationRepository.findByEventIdWithMember(eventId).stream()
+        return applicationRepository.findByEventIdOrderByAppliedAtAsc(eventId).stream()
             .map(ApplicationResponse::from)
             .toList();
     }
