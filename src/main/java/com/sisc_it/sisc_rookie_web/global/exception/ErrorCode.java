@@ -13,6 +13,15 @@ public enum ErrorCode {
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "요청 값이 올바르지 않습니다."),
+
+    // 행사(Event)
+    EVENT_NOT_FOUND(HttpStatus.NOT_FOUND, "행사를 찾을 수 없습니다."),
+
+    // 출석(Attendance)
+    NOT_APPROVED_FOR_ATTENDANCE(HttpStatus.FORBIDDEN, "승인된 신청자만 출석할 수 있습니다."),
+    INVALID_ATTENDANCE_CODE(HttpStatus.BAD_REQUEST, "유효하지 않은 출석 코드입니다."),
+    ALREADY_ATTENDED(HttpStatus.CONFLICT, "이미 출석 처리되었습니다."),
+
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
 
     private final HttpStatus status;
