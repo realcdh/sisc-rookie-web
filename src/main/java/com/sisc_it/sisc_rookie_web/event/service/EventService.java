@@ -30,8 +30,8 @@ public class EventService {
     /** 행사 목록 조회. status가 null이면 전체, 지정 시 해당 상태만 반환한다. */
     public List<EventResponse> getEvents(EventStatus status) {
         List<Event> events = (status == null)
-            ? eventRepository.findAllWithCreator()
-            : eventRepository.findAllByStatusWithCreator(status);
+            ? eventRepository.findAllByOrderByCreatedAtDesc()
+            : eventRepository.findAllByStatusOrderByCreatedAtDesc(status);
 
         return events.stream()
             .map(EventResponse::from)
@@ -40,8 +40,7 @@ public class EventService {
 
     /** 행사 상세 조회. */
     public EventResponse getEvent(Long eventId) {
-        Event event = eventRepository.findByIdWithCreator(eventId)
-            .orElseThrow(() -> new BusinessException(ErrorCode.EVENT_NOT_FOUND));
+        Event event = findEvent(eventId);
         return EventResponse.from(event);
     }
 
