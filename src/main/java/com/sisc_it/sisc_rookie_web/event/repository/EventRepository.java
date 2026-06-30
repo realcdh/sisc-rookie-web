@@ -21,4 +21,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query("select e from Event e join fetch e.createdBy where e.id = :id")
     Optional<Event> findByIdWithCreator(@Param("id") Long id);
+
+    // 대시보드 집계용(예: 모집 중인 행사 수)
+    long countByStatus(EventStatus status);
 }
