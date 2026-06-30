@@ -14,9 +14,60 @@
 <br>
 
 ## 🛠 기술 스택 (Tech Stack)
-* **Backend:** Spring Boot, Java
-* **Frontend:** React
-* **기타:** RESTful API, Swagger (API 명세)
+* **Backend:** Spring Boot, Java 17, Spring Security(JWT), Spring Data JPA
+* **Database:** H2 (인메모리, PostgreSQL 호환 모드) — 로컬 시연 우선
+* **Frontend:** React 18, Vite, React Router
+* **기타:** RESTful API, 공통 응답 포맷(ApiResponse), 전역 예외 처리
+
+<br>
+
+## ⚡ 로컬 실행 및 시연 (Quick Start)
+
+> 이 브랜치(`feature/frontend`)는 모든 백엔드 기능과 React 프론트엔드를 통합한 **데모 브랜치**입니다.
+> 전체 흐름(로그인 → 행사 생성 → 신청 → 승인 → 출석 → 피드백 → 대시보드)을 바로 시연할 수 있습니다.
+
+**사전 요구사항:** JDK 17, Node.js 18+
+
+```bash
+# 1) 백엔드 실행 (자동으로 local 프로파일이 켜져 시연용 시드 데이터가 생성됩니다)
+./gradlew bootRun
+# → http://localhost:8080  (H2 콘솔: http://localhost:8080/h2-console)
+
+# 2) 프론트엔드 실행 (새 터미널)
+cd frontend
+npm install
+npm run dev
+# → http://localhost:5173  (/api 요청은 8080으로 프록시됩니다)
+```
+
+**시연 계정** (비밀번호 공통 `password123`)
+
+| 역할 | 이메일 | 가능한 일 |
+| :--- | :--- | :--- |
+| ADMIN | `admin@sisc.test` | 행사 생성/수정/상태변경/삭제, 대시보드, 전체 피드백 |
+| STAFF | `staff@sisc.test` | 신청자 승인/반려, 출석 코드 발급, 출석 현황 |
+| MEMBER | `member@sisc.test` | 행사 신청/취소, 출석 체크, 피드백 작성 |
+
+**테스트 실행**
+
+```bash
+./gradlew test   # 서비스/컨트롤러 통합 테스트
+```
+
+<br>
+
+## 🌿 브랜치 구조
+
+기능별로 독립 브랜치를 두고, 본 브랜치에서 통합했습니다.
+
+| 브랜치 | 내용 |
+| :--- | :--- |
+| `feature/event-crud` | 행사 CRUD, 상태 전이, 공통 인프라(보안/예외/시드) |
+| `feature/application` | 신청·승인·반려·취소 |
+| `feature/attendance` | 출석 코드 발급, 출석 체크, 출석 현황 |
+| `feature/feedback` | 피드백 작성/조회 |
+| `feature/dashboard` | 운영 현황 집계 |
+| `feature/frontend` | 위 전부 통합 + React 프론트엔드 (현재 브랜치) |
 
 <br>
 
