@@ -70,7 +70,7 @@ public class AttendanceService {
     public List<AttendanceResponse> getAttendances(Long eventId) {
         eventRepository.findById(eventId)
             .orElseThrow(() -> new BusinessException(ErrorCode.EVENT_NOT_FOUND));
-        return attendanceRepository.findByEventIdWithMember(eventId).stream()
+        return attendanceRepository.findByEventIdOrderByCheckedInAtAsc(eventId).stream()
             .map(AttendanceResponse::from)
             .toList();
     }
