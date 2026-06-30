@@ -47,14 +47,14 @@ public class FeedbackService {
     public List<FeedbackResponse> getFeedbacks(Long eventId) {
         eventRepository.findById(eventId)
             .orElseThrow(() -> new BusinessException(ErrorCode.EVENT_NOT_FOUND));
-        return feedbackRepository.findByEventIdWithMember(eventId).stream()
+        return feedbackRepository.findByEventIdOrderByCreatedAtDesc(eventId).stream()
             .map(FeedbackResponse::from)
             .toList();
     }
 
     /** [관리자] 전체 행사의 피드백 모아보기. */
     public List<FeedbackResponse> getAllFeedbacks() {
-        return feedbackRepository.findAllWithEventAndMember().stream()
+        return feedbackRepository.findAllByOrderByCreatedAtDesc().stream()
             .map(FeedbackResponse::from)
             .toList();
     }
