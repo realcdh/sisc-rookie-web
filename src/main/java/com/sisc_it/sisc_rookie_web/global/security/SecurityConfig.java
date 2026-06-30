@@ -5,9 +5,11 @@ import java.io.IOException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -38,9 +41,12 @@ public class SecurityConfig {
             .httpBasic(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/auth/signup", "/api/v1/auth/login").permitAll()
-                .requestMatchers("/api/v1/members/me").hasAnyRole("MEMBER", "STAFF", "ADMIN")
+                .requestMatchers("/h2-console/**").permitAll()
+                // 세부 역할 권한은 각 컨트롤러의 @PreAuthorize로 선언한다.
                 .anyRequest().authenticated()
             )
+            // H2 콘솔은 iframe을 사용하므로 동일 출처 프레임을 허용한다.
+            .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
             .exceptionHandling(exception -> exception
                 .authenticationEntryPoint((request, response, authException) ->
                     writeErrorResponse(response, ErrorCode.UNAUTHORIZED))
