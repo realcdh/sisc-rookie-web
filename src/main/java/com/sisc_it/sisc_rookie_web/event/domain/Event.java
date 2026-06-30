@@ -2,6 +2,8 @@ package com.sisc_it.sisc_rookie_web.event.domain;
 
 import java.time.LocalDateTime;
 
+import com.sisc_it.sisc_rookie_web.global.exception.BusinessException;
+import com.sisc_it.sisc_rookie_web.global.exception.ErrorCode;
 import com.sisc_it.sisc_rookie_web.member.domain.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,7 +18,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 @Entity
@@ -28,16 +29,23 @@ public class Event {
     private Long id;
 
     @Column(nullable = false)
-    @Setter
     private String title;
 
     @Column(nullable = false, length = 2000)
-    @Setter
     private String description;
+
+    // 정원. null이면 정원 제한 없음을 의미한다(표시/집계용).
+    @Column(name = "capacity")
+    private Integer capacity;
+
+    @Column(name = "location")
+    private String location;
+
+    @Column(name = "start_at")
+    private LocalDateTime startAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    @Setter
     private EventStatus status;
 
     // Managed by the system, so no public setter.
@@ -61,6 +69,36 @@ public class Event {
         this.description = description;
         this.status = status;
         this.createdBy = createdBy;
+    }
+
+    public Event(String title, String description, Integer capacity, String location,
+                 LocalDateTime startAt, EventStatus status, Member createdBy) {
+        this(title, description, status, createdBy);
+        this.capacity = capacity;
+        this.location = location;
+        this.startAt = startAt;
+    }
+
+    /** 행사 상세 내용을 수정한다. 상태 전이와는 무관하다. */
+    public void updateDetails(String title, String description, Integer capacity,
+                              String location, LocalDateTime startAt) {
+        this.title = title;
+        this.description = description;
+        this.capacity = capacity;
+        this.location = location;
+        this.startAt = startAt;
+    }
+
+    /**
+     * 행사 상태를 전이한다. 허용되지 않는 전이는 예외를 던진다.
+     *
+     * @throws BusinessException 전이 규칙({@link EventStatus#canTransitionTo})을 위반한 경우
+     */
+    public void changeStatus(EventStatus target) {
+        if (this.status == target || !this.status.canTransitionTo(target)) {
+            throw new BusinessException(ErrorCode.INVALID_EVENT_STATUS_TRANSITION);
+        }
+        this.status = target;
     }
 
     @PrePersist
